@@ -1,0 +1,17 @@
+# Streamlit's own theme tokens. These control the widget chrome Streamlit draws
+# itself (selection underlines, radio dots, focus rings, sliders) which CSS
+# cannot reliably reach. They match the palette in src/ui/theme.py.
+
+[theme]
+primaryColor = "#2B6CB0"
+backgroundColor = "#FFFFFF"
+secondaryBackgroundColor = "#F5F7F9"
+textColor = "#1A1A1A"
+font = "sans serif"
+
+[client]
+toolbarMode = "minimal"
+showErrorDetails = true
+
+[browser]
+gatherUsageStats = false

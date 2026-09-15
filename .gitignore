@@ -1,0 +1,14 @@
+.env
+__pycache__/
+*.py[cod]
+.pytest_cache/
+.venv/
+venv/
+*.db
+*.sqlite3
+data/vc_scouting.db
+data/exports/
+.DS_Store
+.streamlit/secrets.toml
+*.db-shm
+*.db-wal
