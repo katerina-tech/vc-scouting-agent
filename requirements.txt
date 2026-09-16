@@ -8,3 +8,23 @@ python-dotenv>=1.0
 beautifulsoup4>=4.12
 openpyxl>=3.1
 pytest>=8.2
+
+# --- Federated calibration (optional) --------------------------------------
+# Learns a cross-fund view of the scoring weights via Flower, without any
+# fund's deal flow leaving its own machine. See src/federated/.
+#
+# The Streamlit "Federated calibration" tab only needs these two lines — it
+# drives src/federated/orchestrator.py, a dependency-free FedAvg loop.
+flwr[simulation]>=1.11
+scikit-learn>=1.4
+
+# Ray is only needed to actually execute `flwr run .` (the real distributed
+# deployment path via client_app.py/server_app.py, including SecAgg+) or the
+# opt-in tests/test_secagg_integration.py. Flower's own packaging deliberately
+# excludes Ray from the `simulation` extra on Windows for this Python version
+# (`sys_platform != 'win32'` in flwr's own dependency pins) — a real, known
+# compatibility gap, not just caution on this project's part. It installs and
+# runs correctly here, but its process-shutdown path prints a harmless
+# Windows access-violation traceback after the run has already completed
+# (see server_app.py). Uncomment if you need the real deployment path:
+# ray[default]>=2.10

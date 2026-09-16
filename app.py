@@ -14,6 +14,7 @@ from src.scoring.score_config import validate_weights
 from src.ui import (
     candidates,
     discovery,
+    federated,
     memo,
     ranking,
     research,
@@ -36,6 +37,7 @@ PAGES = {
     "Ranking": ranking.render,
     "Investment memo": memo.render,
     "Final shortlist": shortlist.render,
+    "Federated calibration": federated.render,
 }
 
 

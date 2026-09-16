@@ -378,7 +378,7 @@ def funnel_stages(startups: list[Startup], shortlist_size: int = 0,
          "Every company brought into the workspace, from any source."),
         ("Passed the hard filters", len(eligible) + len(approved),
          "Geography, stage, funding ceiling, theme, founding year and active status — "
-         "checked deterministically, with unknown funding never counted as eligible."),
+         "checked by fixed rules, with unknown funding never counted as eligible."),
         ("Scored and rankable", len(ranked),
          "Eligible companies with a computed 100-point score."),
         (f"Top {top_n}", min(top_n, len(ranked)),

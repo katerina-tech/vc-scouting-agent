@@ -143,8 +143,9 @@ def render() -> None:
     with st.expander("How the 100 points are allocated"):
         st.dataframe(pd.DataFrame(weights_table()), hide_index=True, width="stretch")
         st.caption(
-            "weighted_score = raw_rating / 5 × weight. A criterion with no evidence is left "
-            "unrated and contributes nothing — it is not quietly scored 0 or 3."
+            "Each criterion's points = its 0-5 rating ÷ 5, times its weight. A criterion "
+            "with no evidence is left unrated and contributes nothing — it is not quietly "
+            "scored 0 or 3."
         )
 
     rows = event.selection.rows if hasattr(event, "selection") else []

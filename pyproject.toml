@@ -1,0 +1,71 @@
+[build-system]
+requires = ["hatchling"]
+build-backend = "hatchling.build"
+
+[project]
+name = "vc-scouting-agent"
+version = "0.1.0"
+description = "VC Startup Scouting Agent, with a Flower-federated calibration layer for the scoring framework's weights."
+readme = "README.md"
+license = "MIT"
+requires-python = ">=3.10"
+dependencies = [
+    "flwr[simulation]>=1.11.0",
+    "scikit-learn>=1.4",
+    "numpy>=1.26",
+]
+
+[tool.hatch.build.targets.wheel]
+packages = ["src"]
+
+# --- Flower app config -------------------------------------------------
+# Real deployment path: client_app.py / server_app.py, run against actual
+# fund SuperNodes. The server drives the round loop through SecAggPlusWorkflow
+# (not a plain FedAvg strategy loop) — every fund's update is masked with
+# Shamir-shared secrets before this server ever sees it. Requires the paired
+# `secaggplus_mod` on the client side (already wired in client_app.py).
+#
+# Verified working against Flower's own hosted SuperGrid (not just local
+# Ray) — run 12888806777394775661, federation @ekaterinaberlin/workspace,
+# 2026-09-16: 20/20 rounds, 8/8 clients, 0 failures, "Secure aggregation
+# commencing/completed" every round, loss 0.632 -> 0.487, finished in 26s.
+# The exact command:
+#
+#     flwr login supergrid   # first time only; opens a browser OAuth flow
+#     flwr run . supergrid --federation @<account>/workspace \
+#         --federation-config "num-supernodes=8" --stream
+#
+# `supergrid` is the pre-registered hosted SuperLink connection name
+# (`flwr config list` shows it alongside `local`/`local-simulation`) — it is
+# NOT the same thing as the federation id passed to `--federation`, and
+# `flwr run` needs both: the connection as a positional arg, the federation
+# as a flag. `@<account>/workspace` is a simulation-runtime federation (fits
+# this app's virtual SuperNodes); `@<account>/personal` is deployment-runtime
+# (real physical SuperNodes) and won't run this without actual fund machines
+# registered to it.
+#
+# The Streamlit "Federated calibration" tab does NOT use this path — it calls
+# src/federated/orchestrator.py directly (no Ray, no SecAgg+, DP only), since
+# the live demo has to run without depending on network access to SuperGrid
+# or a Ray installation. To re-verify this real path locally instead (e.g.
+# offline), Python's `flwr.simulation.run_simulation` against `client_app.app`
+# / `server_app.app` also works — see tests/test_secagg_integration.py — but
+# needs `pip install ray[default]` first (deliberately not a hard dependency
+# here; see requirements.txt for why it's Windows-specific-risky locally).
+[tool.flwr.app]
+publisher = "ekaterinaberlin"
+
+[tool.flwr.app.components]
+serverapp = "src.federated.server_app:app"
+clientapp = "src.federated.client_app:app"
+
+[tool.flwr.app.config]
+num-server-rounds = 20
+fraction-fit = 1.0
+num-funds = 8
+n-companies-per-fund = 40
+seed = 42
+# SecAgg+ sizing — defaults to (num-funds, num-funds - 1) in server_app.py
+# if left unset here, which tolerates exactly one fund dropping mid-round.
+secagg-num-shares = 8
+secagg-threshold = 7

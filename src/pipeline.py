@@ -9,16 +9,15 @@ from __future__ import annotations
 
 from dataclasses import dataclass, field
 
-from .enrichment.company_enrichment import enrich_company
-from .filters.eligibility import apply_eligibility
+from .agents.crew import AssessmentCrew
 from .ingestion.source_adapter import IngestionResult
 from .models.enums import Dataset
 from .models.startup import Startup
 from .models.thesis import InvestmentThesis
 from .normalization.deduplication import deduplicate, find_existing, merge_pair
 from .research.evidence_manager import EvidenceManager
-from .research.red_flags import apply_red_flags, open_questions_from_flags
-from .scoring.score_engine import apply_score, rank
+from .research.red_flags import open_questions_from_flags
+from .scoring.score_engine import rank
 from .storage.repository import Repository
 
 
@@ -54,21 +53,14 @@ def assess_one(
     *,
     enrich: bool = True,
 ) -> list[str]:
-    """Run enrichment, eligibility, scoring and red flags over one company."""
-    notes: list[str] = []
-    if enrich:
-        notes.extend(enrich_company(startup, evidence))
-    else:
-        evidence.refresh_startup_confidence(startup)
-
-    apply_eligibility(startup, thesis, evidence)
-    apply_score(startup, thesis, evidence)
-    apply_red_flags(startup, thesis, evidence)
+    """Run the fund's agent team (evidence, eligibility, scoring, risk,
+    recommendation) over one company — see src/agents/crew.py."""
+    transcript = AssessmentCrew().assess(startup, thesis, evidence, enrich=enrich)
 
     for question in open_questions_from_flags(startup):
         if question not in startup.open_questions:
             startup.open_questions.append(question)
-    return notes
+    return transcript.notes
 
 
 def reassess_all(

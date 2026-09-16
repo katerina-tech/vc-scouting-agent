@@ -191,7 +191,12 @@ def render(dataset: Dataset, on_import) -> None:
         preview = apply_mapping(frame, mapping).head(5)
         st.dataframe(preview, width="stretch", hide_index=True)
     except Exception as exc:  # noqa: BLE001
-        st.error(f"Could not apply that mapping: {exc}")
+        st.error(
+            "Could not apply that mapping — one of the selected columns doesn't match "
+            "the data. Try a different column, or check the file for stray rows."
+        )
+        with st.expander("Technical details"):
+            st.code(str(exc))
         return
 
     cols = st.columns([1, 1, 2])

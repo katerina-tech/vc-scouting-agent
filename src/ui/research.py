@@ -9,13 +9,11 @@ from __future__ import annotations
 
 import streamlit as st
 
+from ..agents.crew import AssessmentCrew
 from ..enrichment.company_enrichment import enrich_company
-from ..filters.eligibility import apply_eligibility
 from ..models.enums import EligibilityStatus, Stage
 from ..models.startup import Startup
 from ..normalization.company_normalizer import normalize_funding, normalize_stage
-from ..research.red_flags import apply_red_flags
-from ..scoring.score_engine import apply_score
 from . import state, theme
 from .components import (
     add_source_form,
@@ -66,9 +64,7 @@ SOURCEABLE_FIELDS = [
 
 
 def _reassess(startup: Startup) -> None:
-    apply_eligibility(startup, state.thesis(), state.evidence())
-    apply_score(startup, state.thesis(), state.evidence())
-    apply_red_flags(startup, state.thesis(), state.evidence())
+    AssessmentCrew().assess(startup, state.thesis(), state.evidence(), enrich=False)
     state.repo().save_startup(startup)
 
 
@@ -115,6 +111,31 @@ def _header(startup: Startup) -> None:
                 "<strong>Ineligible.</strong> This company cannot be ranked or shortlisted. "
                 "Correct the underlying data below if you believe a check is wrong."
             )
+
+
+def _agent_transcript(startup: Startup) -> None:
+    transcript = startup.agent_transcript
+    has_veto = any(m.is_veto for m in transcript)
+    with st.expander(f"Agent team activity ({len(transcript)})", expanded=has_veto):
+        if not transcript:
+            st.caption("Not assessed yet — run scoring once to see the agent team's conversation.")
+            return
+        st.caption(
+            "Five agents hand this company to one another — evidence, eligibility, scoring, "
+            "risk, recommendation. Any of them can override an earlier one's proposal; that "
+            "is what keeps a strong score from becoming a recommendation on its own."
+        )
+        for message in transcript:
+            if message.is_veto:
+                theme.callout(
+                    f"<strong>{message.overrides}</strong>'s objection overrides the score "
+                    f"&nbsp;→&nbsp; {message.summary}"
+                    + (f"<div class='vc-note'>{message.detail}</div>" if message.detail else "")
+                )
+            else:
+                st.markdown(f"**{message.agent}** — {message.summary}")
+                if message.detail:
+                    st.caption(message.detail)
 
 
 def _evidence_sections(startup: Startup) -> None:
@@ -225,6 +246,7 @@ def render() -> None:
 
     theme.rule()
     _header(startup)
+    _agent_transcript(startup)
 
     action_cols = st.columns(3)
     if action_cols[0].button("Re-run scoring", width="stretch"):

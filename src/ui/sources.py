@@ -169,8 +169,8 @@ CATALOGUE: list[OpenSource] = [
             "Import here and map the columns.",
         ],
         caveat=(
-            "Requires a paid licence. Do not scrape these sites without one — the adapter "
-            "stubs in this application deliberately refuse to fake that access."
+            "Requires a paid licence. Do not scrape these sites without one — this "
+            "application deliberately refuses to fake that access."
         ),
         cost="Licence required",
     ),

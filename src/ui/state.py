@@ -170,8 +170,8 @@ def render_sidebar() -> None:
         else:
             st.caption(client.describe())
             st.caption(
-                "Scoring, eligibility, memos and Loom scripts all have deterministic "
-                "implementations, so nothing depends on a model being configured."
+                "Scoring, eligibility, memos and Loom scripts all run on fixed rules, not "
+                "a model's guess, so nothing depends on a model being configured."
             )
 
         st.divider()

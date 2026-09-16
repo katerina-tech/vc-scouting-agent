@@ -29,6 +29,7 @@ from .enums import (
     Stage,
     VerificationStatus,
 )
+from .agents import AgentMessage
 from .scoring import EligibilityResult, RedFlag, ScoreBreakdown
 
 
@@ -106,6 +107,8 @@ class Startup(BaseModel):
     score_breakdown: ScoreBreakdown | None = None
     red_flags: list[RedFlag] = Field(default_factory=list)
     open_questions: list[str] = Field(default_factory=list)
+    #: The fund's agent team's audit trail for the latest assessment — see src/agents/crew.py.
+    agent_transcript: list[AgentMessage] = Field(default_factory=list)
 
     # --- human-in-the-loop ------------------------------------------------
     notes: str = ""

@@ -140,7 +140,8 @@ def render() -> None:
         "Stage 05",
         "Investment memo",
         "Structure and recommendation are computed from the evidence; the prose is written "
-        "by the analyst model when one is configured, and deterministically when not.",
+        "by the analyst model when one is configured, and by fixed rules — not a model's "
+        "guess — when it isn't.",
     )
     state.drain_messages()
 
@@ -173,7 +174,7 @@ def render() -> None:
 
     if not state.analyst().available:
         st.caption(
-            f"{state.analyst().describe()} The memo below is written deterministically "
+            f"{state.analyst().describe()} The memo below is written by fixed rules "
             "from the evidence record: complete, just less fluent."
         )
 

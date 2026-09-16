@@ -330,11 +330,10 @@ def _url_tab() -> None:
 def _integrations_tab() -> None:
     st.markdown("#### Programmatic integrations")
     st.markdown(
-        '<div class="vc-lede">Each of these is a real adapter implementing the same '
-        '<code>SourceAdapter</code> interface. None fabricates data: without a configured '
-        'key they report themselves unavailable and name the environment variable to set. '
-        'That is a deliberate design choice — a scouting tool that invents deal flow is '
-        'worse than one that admits it has none.</div>',
+        '<div class="vc-lede">Each of these connects to a real data provider. None of them '
+        'invents data: if a key isn\'t set up yet, it says so plainly and names exactly what '
+        'to configure. That is a deliberate choice — a scouting tool that invents deal flow '
+        'is worse than one that admits it has none.</div>',
         unsafe_allow_html=True,
     )
     for adapter in PLANNED_ADAPTERS:
